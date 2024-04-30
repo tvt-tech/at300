@@ -148,16 +148,14 @@ def handle_focusout_btn():
 
 
 def handle_foucusstop():
-    if (
-            Button.FocusOut.value()
-            and Button.FocusIn.value()
-            and Button.FocusStop != 1
-    ):
-        ButtonState.FocusStop = 1
-        send_command(api.FocusStop)
-        print("FocusStop")
-    elif ButtonState.FocusStop != 0:
-        ButtonState.FocusStop = 0
+    if Button.FocusOut.value() and Button.FocusIn.value():
+        if Button.FocusStop == 0:
+            ButtonState.FocusStop = 1
+            send_command(api.FocusStop)
+            print("FocusStop")
+    else:
+        if ButtonState.FocusStop == 1:
+            ButtonState.FocusStop = 0
 
 
 def handle_inversion_btn():
