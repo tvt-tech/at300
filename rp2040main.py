@@ -1,10 +1,10 @@
 import time
+
 from machine import UART, Pin
+
 import api
 
-
 LED = Pin(25, Pin.OUT)
-
 
 uart = UART(1, baudrate=115200, tx=Pin(4), rx=Pin(5))
 RS422Pin = Pin(2, Pin.OUT)
@@ -52,10 +52,10 @@ def send_command(command: list[int]):
     print(f"uart bytes sent: {ret}")
 
 
-def focus_idle(button):
-    while not button.value():
-        time.sleep_ms(50)
-    send_command(api.FocusStop)
+# def focus_idle(button):
+#     while not button.value():
+#         time.sleep_ms(50)
+#     send_command(api.FocusStop)
 
 
 def handle_contrast_btn():
@@ -104,6 +104,7 @@ def handle_zoomin_btn():
             send_command(api.Zoom[Status.Zoom])
         print(f"{Status.Zoom=}")
 
+
 def handle_zoomout_btn():
     if Button.ZoomOut.value():
         ButtonState.ZoomOut = 0
@@ -114,12 +115,14 @@ def handle_zoomout_btn():
             send_command(api.Zoom[Status.Zoom])
         print(f"{Status.Zoom=}")
 
+
 def handle_calibration_btn():
     if Button.Calibration.value():
         ButtonState.Calibration = 0
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
         send_command(api.Calibration)
+
 
 def handle_autofocus_btn():
     if Button.AutoFocus.value():
@@ -130,17 +133,21 @@ def handle_autofocus_btn():
 
 
 def handle_focusin_btn():
-    # elif not Button.FocusIn.value():
-    #     send_command(api.FocusIn)
-    #     focus_idle(Button.FocusIn)
-    ...
+    if Button.FocusIn.value():
+        ButtonState.FocusIn = 0
+        send_command(api.FocusStop)
+    elif ButtonState.FocusIn != 1:
+        ButtonState.FocusIn = 1
+        send_command(api.FocusIn)
 
 
 def handle_focusout_btn():
-    # elif not Button.FocusOut.value():
-    #     send_command(api.FocusOut)
-    #     focus_idle(Button.FocusOut)
-    ...
+    if Button.FocusOut.value():
+        ButtonState.FocusOut = 0
+        send_command(api.FocusStop)
+    elif ButtonState.FocusOut != 1:
+        ButtonState.FocusOut = 1
+        send_command(api.FocusOut)
 
 
 def handle_inversion_btn():
@@ -174,5 +181,6 @@ def main():
 
         handle_calibration_btn()
         handle_inversion_btn()
+
 
 main()
