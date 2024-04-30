@@ -63,10 +63,11 @@ def handle_contrast_btn():
         ButtonState.Contrast = 0
     elif ButtonState.Contrast != 1:
         ButtonState.Contrast = 1
-        send_command(api.CONTRAST[Status.Contrast + 1])
         Status.Contrast += 1
         if Status.Contrast == len(api.CONTRAST):
             Status.Contrast = 0
+        send_command(api.CONTRAST[Status.Contrast])
+        print(f"{Status.Contrast=}")
 
 
 def handle_brightness_btn():
@@ -74,10 +75,11 @@ def handle_brightness_btn():
         ButtonState.Brightness = 0
     elif ButtonState.Brightness != 1:
         ButtonState.Brightness = 1
-        send_command(api.BRIGHTNESS[Status.Brightness + 1])
         Status.Brightness += 1
         if Status.Brightness == len(api.BRIGHTNESS):
             Status.Brightness = 0
+        send_command(api.BRIGHTNESS[Status.Brightness])
+        print(f"{Status.Brightness=}")
 
 
 def handle_mide_btn():
@@ -85,10 +87,11 @@ def handle_mide_btn():
         ButtonState.Mide = 0
     elif ButtonState.Mide != 1:
         ButtonState.Mide = 1
-        send_command(api.MIDE[Status.Mide + 1])
         Status.Mide += 1
         if Status.Mide == len(api.MIDE):
             Status.Mide = 0
+        send_command(api.MIDE[Status.Mide])
+        print(f"{Status.Mide=}")
 
 
 def handle_zoomin_btn():
@@ -99,7 +102,7 @@ def handle_zoomin_btn():
         if Status.Zoom + 1 < len(api.Zoom):
             Status.Zoom += 1
             send_command(api.Zoom[Status.Zoom])
-
+        print(f"{Status.Zoom=}")
 
 def handle_zoomout_btn():
     if Button.ZoomOut.value():
@@ -109,7 +112,7 @@ def handle_zoomout_btn():
         if Status.Zoom > 0:
             Status.Zoom -= 1
             send_command(api.Zoom[Status.Zoom])
-
+        print(f"{Status.Zoom=}")
 
 def handle_calibration_btn():
     if Button.Calibration.value():
@@ -117,7 +120,6 @@ def handle_calibration_btn():
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
         send_command(api.Calibration)
-
 
 def handle_autofocus_btn():
     if Button.AutoFocus.value():
