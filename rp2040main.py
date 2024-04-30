@@ -45,7 +45,7 @@ class ButtonState:
     Calibration = 0
     FocusIn = 0
     FocusOut = 0
-    FocusStop = 0
+    FocusStop = 1
 
 
 def send_command(command: list[int]):
@@ -153,9 +153,8 @@ def handle_foucusstop():
             ButtonState.FocusStop = 1
             send_command(api.FocusStop)
             print("FocusStop")
-    else:
-        if ButtonState.FocusStop == 1:
-            ButtonState.FocusStop = 0
+    elif ButtonState.FocusStop == 1:
+        ButtonState.FocusStop = 0
 
 
 def handle_inversion_btn():
