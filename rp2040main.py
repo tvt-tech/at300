@@ -50,13 +50,7 @@ class ButtonState:
 
 def send_command(command: list[int]):
     ret = uart.write(bytes(command))
-    print(f"uart bytes sent: {ret}")
-
-
-# def focus_idle(button):
-#     while not button.value():
-#         time.sleep_ms(50)
-#     send_command(api.FocusStop)
+    print(f"UART: bytes sent: {ret}")
 
 
 def handle_contrast_btn():
@@ -123,6 +117,7 @@ def handle_calibration_btn():
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
         send_command(api.Calibration)
+        print("Calibration")
 
 
 def handle_autofocus_btn():
@@ -131,6 +126,7 @@ def handle_autofocus_btn():
     elif ButtonState.AutoFocus != 1:
         ButtonState.AutoFocus = 1
         send_command(api.AutoFocus)
+        print("AutoFocus")
 
 
 def handle_focusin_btn():
@@ -139,6 +135,7 @@ def handle_focusin_btn():
     elif ButtonState.FocusIn != 1:
         ButtonState.FocusIn = 1
         send_command(api.FocusIn)
+        print("FocusIn")
 
 
 def handle_focusout_btn():
@@ -147,6 +144,7 @@ def handle_focusout_btn():
     elif ButtonState.FocusOut != 1:
         ButtonState.FocusOut = 1
         send_command(api.FocusOut)
+        print("FocusOut")
 
 
 def handle_foucusstop():
@@ -157,6 +155,7 @@ def handle_foucusstop():
     ):
         ButtonState.FocusStop = 1
         send_command(api.FocusStop)
+        print("FocusStop")
     elif ButtonState.FocusStop != 0:
         ButtonState.FocusStop = 0
 
@@ -172,6 +171,7 @@ def handle_inversion_btn():
         else:
             send_command(api.WhiteHot)
             Status.Inversion = api.WhiteHot
+        print(f"{Status.Inversion=}")
 
 
 def main():
