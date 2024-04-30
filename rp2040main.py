@@ -45,6 +45,7 @@ class ButtonState:
     Calibration = 0
     FocusIn = 0
     FocusOut = 0
+    FocusStop = 0
 
 
 def send_command(command: list[int]):
@@ -135,7 +136,6 @@ def handle_autofocus_btn():
 def handle_focusin_btn():
     if Button.FocusIn.value():
         ButtonState.FocusIn = 0
-        send_command(api.FocusStop)
     elif ButtonState.FocusIn != 1:
         ButtonState.FocusIn = 1
         send_command(api.FocusIn)
@@ -144,10 +144,21 @@ def handle_focusin_btn():
 def handle_focusout_btn():
     if Button.FocusOut.value():
         ButtonState.FocusOut = 0
-        send_command(api.FocusStop)
     elif ButtonState.FocusOut != 1:
         ButtonState.FocusOut = 1
         send_command(api.FocusOut)
+
+
+def handle_foucusstop():
+    if (
+            Button.FocusOut.value()
+            and Button.FocusIn.value()
+            and Button.FocusStop != 1
+    ):
+        ButtonState.FocusStop = 1
+        send_command(api.FocusStop)
+    elif ButtonState.FocusStop != 0:
+        ButtonState.FocusStop = 0
 
 
 def handle_inversion_btn():
@@ -178,6 +189,7 @@ def main():
         handle_autofocus_btn()
         handle_focusin_btn()
         handle_focusout_btn()
+        handle_foucusstop()
 
         handle_calibration_btn()
         handle_inversion_btn()
