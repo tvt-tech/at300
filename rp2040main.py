@@ -6,16 +6,16 @@ import api
 
 LED = Pin(25, Pin.OUT)
 
-uart = UART(1, baudrate=115200, tx=Pin(4), rx=Pin(5))
+uart = UART(1, baudrate=115200, stop=2, tx=Pin(4), rx=Pin(5))
 RS422Pin = Pin(2, Pin.OUT)
 RS422Pin.on()
 
 
 class Status:
-    Brightness = 0
-    Contrast = 0
-    Mide = 0
-    Zoom = 0
+    Brightness = len(api.CONTRAST) - 1
+    Contrast = len(api.BRIGHTNESS) - 1
+    Mide = len(api.MIDE) - 1
+    Zoom = len(api.Zoom) - 1
     Inversion = api.WhiteHot
 
 
@@ -149,7 +149,7 @@ def handle_focusout_btn():
 
 def handle_foucusstop():
     if Button.FocusOut.value() and Button.FocusIn.value():
-        if Button.FocusStop == 0:
+        if ButtonState.FocusStop == 0:
             ButtonState.FocusStop = 1
             send_command(api.FocusStop)
             print("FocusStop")
@@ -169,6 +169,11 @@ def handle_inversion_btn():
             send_command(api.WhiteHot)
             Status.Inversion = api.WhiteHot
         print(f"{Status.Inversion=}")
+
+
+
+def init():
+    ...
 
 
 def main():
@@ -193,3 +198,4 @@ def main():
 
 
 main()
+
