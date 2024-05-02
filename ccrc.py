@@ -1,4 +1,4 @@
-from api import Zoom
+from api import WhiteHot
 
 
 def crc16(crc, data):
@@ -73,17 +73,24 @@ def CRC_table():
 
 def crc16_ccitt(buf):
     crc16tab = CRC_table()
-    crc = 0
+    crc = 0x0
     for byte in buf:
-        crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ byte) & 0xFF]
+        # crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ byte) & 0xFF]
+        crc = crc16tab[((crc >> 8) ^ byte) & 0xFF] ^ (crc << 8)
     return crc & 0xFFFF
 
 
 if __name__ == "__main__":
-    senddex(Zoom[0][2:-4])
+    senddex(WhiteHot[2:-4])
     print("Expected", format_bytes(
-        bytes(Zoom[0][:2]) + bytes(Zoom[0][2:-2]) + bytes(Zoom[0][-2:])
+        bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
     ))
-    print("CCIT    ", format_bytes(
-        bytes(Zoom[0][:2]) + bytes(Zoom[0][2:-2]) + crc16_ccitt(Zoom[0][2:-2]).to_bytes(2, 'little')
-    ))
+
+
+    for start in range(0, 8):
+        print("CCIT    ", format_bytes(
+            bytes(WhiteHot[:start])
+            + bytes(WhiteHot[start:-2])
+            + crc16_ccitt(WhiteHot[start:-2])
+            .to_bytes(2, 'little')
+        ))
