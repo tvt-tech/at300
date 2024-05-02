@@ -25,8 +25,8 @@ def crc16fast(crc, data):
 def format_bytes(data):
     return ''.join([f"\\x{i:02X}" for i in data])
 
-def senddex(string):
 
+def senddex(string):
     ret = bytearray()
 
     crc = 0x0000
@@ -55,8 +55,35 @@ def senddex(string):
     return ret
 
 
+# crc16tab = [0] * 256
+
+
+def CRC_table():
+    crc16tab = [0] * 256
+    for h in range(256):
+        r = h << 8
+        for k in range(8):
+            if r & 0x8000:
+                r = (r << 1) ^ 0x1021
+            else:
+                r = r << 1
+        crc16tab[h] = r
+    return crc16tab
+
+
+def crc16_ccitt(buf):
+    crc16tab = CRC_table()
+    crc = 0
+    for byte in buf:
+        crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ byte) & 0xFF]
+    return crc & 0xFFFF
+
+
 if __name__ == "__main__":
     senddex(Zoom[0][2:-4])
     print("Expected", format_bytes(
         bytes(Zoom[0][:2]) + bytes(Zoom[0][2:-2]) + bytes(Zoom[0][-2:])
+    ))
+    print("CCIT    ", format_bytes(
+        bytes(Zoom[0][:2]) + bytes(Zoom[0][2:-2]) + crc16_ccitt(Zoom[0][2:-2]).to_bytes(2, 'little')
     ))
