@@ -52,6 +52,20 @@ def senddex(string):
     print("0x{:02X} - CRC High".format((crc >> 8) & 0x00FF))
     ret.append((crc >> 8) & 0x00FF)
     print("Actual  ", format_bytes(ret))
+
+
+    # DLE, SOH, *DATA, DLE_, ETX, CRC_LO, CRC_HI = ret
+    # data = (DLE, SOH, DATA, DLE_, ETX, CRC_LO, CRC_HI)
+    # keys = ('DLE', 'SOH', 'DATA', 'DLE_', 'ETX', 'CRC Low', 'CRC High')
+    # data_dict = dict(zip(keys, data))
+    #
+    # for k, v in data_dict.items():
+    #     if isinstance(v, int):
+    #         print(f"0x{v:02X} - {k}")
+    #     elif isinstance(v, (list, bytes, bytearray)):
+    #         for b in v:
+    #             print(f"0x{b:02X} - {b}")
+
     return ret
 
 
@@ -105,3 +119,5 @@ if __name__ == "__main__":
     print("Checksum", format_bytes(CRC))
     print("CCIT    ", format_bytes(CCIT))
     print(EXP == CRC == CCIT)
+
+    print(senddex(WhiteHot))
