@@ -71,26 +71,37 @@ def CRC_table():
     return crc16tab
 
 
+CRCtable = CRC_table()
+
 def crc16_ccitt(buf):
     crc16tab = CRC_table()
     crc = 0x0
     for byte in buf:
-        # crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ byte) & 0xFF]
         crc = crc16tab[((crc >> 8) ^ byte) & 0xFF] ^ (crc << 8)
     return crc & 0xFFFF
 
 
+def crc16_ccitt_fast(data_buffer):
+    crc = 0x0
+    for byte in data_buffer:
+        crc = CRCtable[((crc >> 8) ^ byte) & 0xFF] ^ (crc << 8)
+    return crc & 0xFFFF
+
+
+def checksum_message(msg: list[int]):
+    return bytes(msg[0:-2]) + crc16_ccitt_fast(msg[2:-4]).to_bytes(2, byteorder='big')
+
+
+def ccitt_message(msg: list[int]):
+    return bytes(msg[0:-2]) + crc16_ccitt(msg[2:-4]).to_bytes(2, byteorder='big')
+
+
+
 if __name__ == "__main__":
-    senddex(WhiteHot[2:-4])
-    print("Expected", format_bytes(
-        bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
-    ))
-
-
-    for start in range(0, 8):
-        print("CCIT    ", format_bytes(
-            bytes(WhiteHot[:start])
-            + bytes(WhiteHot[start:-2])
-            + crc16_ccitt(WhiteHot[start:-2])
-            .to_bytes(2, 'little')
-        ))
+    EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
+    CRC = checksum_message(WhiteHot)
+    CCIT = ccitt_message(WhiteHot)
+    print("Expected", format_bytes(EXP))
+    print("Checksum", format_bytes(CRC))
+    print("CCIT    ", format_bytes(CCIT))
+    print(EXP == CRC == CCIT)
