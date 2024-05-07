@@ -1,3 +1,4 @@
+import api
 from api import WhiteHot
 
 
@@ -121,3 +122,6 @@ if __name__ == "__main__":
     print("Checksum", format_bytes(CRC))
     print("CCIT    ", format_bytes(CCIT))
     print(EXP == CRC == CCIT)
+
+
+    print(checksum_message(api.Calibration))
