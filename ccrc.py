@@ -51,7 +51,7 @@ def senddex(string):
     ret.append((crc >> 0) & 0x00FF)
     print("0x{:02X} - CRC High".format((crc >> 8) & 0x00FF))
     ret.append((crc >> 8) & 0x00FF)
-    print("Actual  ", format_bytes(ret))
+    # print("Actual  ", format_bytes(ret))
 
 
     # DLE, SOH, *DATA, DLE_, ETX, CRC_LO, CRC_HI = ret
@@ -115,9 +115,9 @@ if __name__ == "__main__":
     EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
     CRC = checksum_message(WhiteHot)
     CCIT = ccitt_message(WhiteHot)
+    ACT = senddex(WhiteHot[2:-4])
+    print("Actual  ", format_bytes(ACT))
     print("Expected", format_bytes(EXP))
     print("Checksum", format_bytes(CRC))
     print("CCIT    ", format_bytes(CCIT))
-    print(EXP == CRC == CCIT)
-
-    print(senddex(WhiteHot))
+    print(ACT == EXP == CRC == CCIT)
