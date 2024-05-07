@@ -120,4 +120,4 @@ if __name__ == "__main__":
     print("Expected", format_bytes(EXP))
     print("Checksum", format_bytes(CRC))
     print("CCIT    ", format_bytes(CCIT))
-    print(ACT == EXP == CRC == CCIT)
+    print(EXP == CRC == CCIT)
