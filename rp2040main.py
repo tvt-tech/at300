@@ -184,22 +184,34 @@ def handle_inversion_btn():
 
 def get_status():
     send_command(api.GET_STATUS)
+    retry = 10
+    h = uart.read(2)
+    while h != b'\x10\x02':
+        print(f"Retry: {h}")
+        retry -= 1
+        if retry <= 0:
+            break
     try:
-        ret = uart.read(22)
-        api.parse_status_response(bytes(ret))
-        print()
+        if h == b'\x10\x02':
+            ret = h + uart.read(20)
+            print(ret)
+            api.parse_status_response(bytes(ret))
+            print()
+        else:
+            print(h)
+            raise ValueError("Wrong header")
     except Exception as e:
         print(f"Failed get status: {e}")
 
 
 
 def main():
-    get_status_timer = 5000
+    #get_status_timer = 5000
     while True:
-        get_status_timer -= 100
-        if get_status_timer <= 0:
-            get_status()
-            get_status_timer = 5000
+        #get_status_timer -= 100
+        #if get_status_timer <= 0:
+        #    get_status()
+        #    get_status_timer = 5000
 
         time.sleep_ms(100)
         LED.value(int(not LED.value()))
@@ -221,5 +233,4 @@ def main():
 
 
 main()
-
 
