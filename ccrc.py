@@ -1,7 +1,3 @@
-import api
-from api import WhiteHot
-
-
 def crc16(crc, data):
     crc = crc ^ (data & 0x00FF)
     for _ in range(8):
@@ -113,6 +109,8 @@ def ccitt_message(msg: list[int]):
 
 
 if __name__ == "__main__":
+    import api
+    from api import WhiteHot
     EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
     CRC = checksum_message(WhiteHot)
     CCIT = ccitt_message(WhiteHot)

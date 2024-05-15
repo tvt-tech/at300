@@ -1,4 +1,7 @@
 #  USER CODE BEGIN PV
+from enum import IntFlag, Enum
+
+from ccrc import ccitt_message, format_bytes
 
 #  ZOOM
 Zoom = [
@@ -224,9 +227,80 @@ def parse_status_response(buf: bytes):
                 print("\t\tLens FOV fault")
 
 
-parse_status_response(bytes(status_on))
-parse_status_response(bytes(bw))
-parse_status_response(bytes(bh))
-parse_status_response(
-    bytes((0x10, 0x02, 0x5F, 0x20, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x0A, 0x00, 0x88, 0x00, 0x22,
-           0x10, 0x03, 0xAB, 0x80)))
+# parse_status_response(bytes(status_on))
+# parse_status_response(bytes(bw))
+# parse_status_response(bytes(bh))
+# parse_status_response(
+#     bytes((0x10, 0x02, 0x5F, 0x20, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x0A, 0x00, 0x88, 0x00, 0x22,
+#            0x10, 0x03, 0xAB, 0x80)))
+
+
+class ACT1(IntFlag):
+    NONE = 0
+    USE_CTRL_1 = 1 << 0
+    POLARITY_WH = 1 << 5  # White Hot
+    POLARITY_BH = 0 << 5  # Black Hot
+
+
+class ACT2(IntFlag):
+    NONE = 0
+    USE_FOV = 1 << 5
+
+
+class CTRL1(IntFlag):
+    """Calibration method"""
+    NONE = 0
+    DEFAULT = 0x3 & 0b111
+
+
+class FOV(Enum):
+    NONE = [0x00, 0x00]
+    WFOV = [0x00, 0x64]
+    MFOV = [0x00, 0xC8]
+    NFOV = [0x01, 0x90]
+
+
+def compile_zoom_command(act1: ACT1 = ACT1.NONE,
+                         act2: ACT2 = ACT2.NONE,
+                         ctrl1: CTRL1 = CTRL1.NONE,
+                         fov: FOV = FOV.WFOV):
+    DLE = 0x10
+    STX = 0x02
+    MID = 0xF4
+    STM = 0x02
+    Rsrv = 0x00
+    CTRL2 = 0x00
+    CTRL3 = 0x80
+    ETX = 0x03
+
+    header = [DLE, STX, MID, STM]
+    footer = [DLE, ETX, Rsrv, Rsrv]
+
+    if act1 & ACT1.USE_CTRL_1:
+        body = [act1, act2, Rsrv, ctrl1, CTRL2, *fov.value, CTRL3, Rsrv, Rsrv]
+    else:
+        body = [act1, act2, Rsrv, *fov.value]
+    cmd = bytearray([*header, *body, *footer])
+    ret = ccitt_message(cmd)
+    print(format_bytes(ret), len(ret))
+    return ret
+
+
+def compile_only_zoom(fov: FOV = FOV.WFOV):
+    return compile_zoom_command(act2=ACT2.USE_FOV, fov=fov)
+
+
+def compile_only_calibration(mode: CTRL1 = CTRL1.DEFAULT):
+    return compile_zoom_command(act1=ACT1.USE_CTRL_1, ctrl1=mode, act2=ACT2.USE_FOV, fov=FOV.NFOV)
+
+
+def compile_only_polarity(polarity: ACT1 = ACT1.POLARITY_WH):
+    return compile_zoom_command(act1=polarity)
+
+
+# compile_zoom_command(act2=ACT2.USE_FOV, fov=FOV.WFOV)
+# compile_zoom_command(act1=ACT1.USE_CTRL_1, ctrl1=CTRL1.DEFAULT, fov=FOV.WFOV)
+#
+# compile_only_calibration(mode=CTRL1.DEFAULT)
+# compile_only_polarity(polarity=ACT1.POLARITY_WH)
+# compile_only_polarity(polarity=ACT1.POLARITY_BH)
