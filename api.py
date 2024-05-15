@@ -3,20 +3,20 @@ from enum import IntFlag, Enum
 
 from ccrc import ccitt_message, format_bytes
 
-#  ZOOM
-Zoom = [
-    [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x00, 0x64, 0x10, 0x03, 0x7E, 0x72],
-    [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x00, 0xC8, 0x10, 0x03, 0x0A, 0x14],
-    [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x01, 0x90, 0x10, 0x03, 0xE2, 0xD8]
-]
-ZoomTest = [0x10, 0x02, 0xF4, 0x02, 0x01, 0x20, 0x00, 0x03, 0x00, 0x01, 0x90, 0x80, 0x00, 0x00, 0x10, 0x03, 0xC4, 0xD9]
-
-# Calibration=[0x10,0x02,0xF4,0x02,0x01,0x20,0x00,0x03,0x00,0x01,0x90,0x80,0x00,0x00,0x10,0x03,0xE2,0xD8]
-Calibration = [0x10, 0x02, 0xF4, 0x02, 0x01, 0x00, 0x00, 0x03, 0x00, 0x00, 0x64, 0x80, 0x00, 0x00, 0x10, 0x03, 0x9C,
-               0xC8]
-
-WhiteHot = [0x10, 0x02, 0xF4, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x10, 0x03, 0x6D, 0xAA]
-BlackHot = [0x10, 0x02, 0xF4, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x03, 0x65, 0x1E]
+# #  ZOOM
+# Zoom = [
+#     [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x00, 0x64, 0x10, 0x03, 0x7E, 0x72],
+#     [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x00, 0xC8, 0x10, 0x03, 0x0A, 0x14],
+#     [0x10, 0x02, 0xF4, 0x02, 0x00, 0x20, 0x00, 0x01, 0x90, 0x10, 0x03, 0xE2, 0xD8]
+# ]
+# ZoomTest = [0x10, 0x02, 0xF4, 0x02, 0x01, 0x20, 0x00, 0x03, 0x00, 0x01, 0x90, 0x80, 0x00, 0x00, 0x10, 0x03, 0xC4, 0xD9]
+#
+# # Calibration=[0x10,0x02,0xF4,0x02,0x01,0x20,0x00,0x03,0x00,0x01,0x90,0x80,0x00,0x00,0x10,0x03,0xE2,0xD8]
+# Calibration = [0x10, 0x02, 0xF4, 0x02, 0x01, 0x00, 0x00, 0x03, 0x00, 0x00, 0x64, 0x80, 0x00, 0x00, 0x10, 0x03, 0x9C,
+#                0xC8]
+#
+# WhiteHot = [0x10, 0x02, 0xF4, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x10, 0x03, 0x6D, 0xAA]
+# BlackHot = [0x10, 0x02, 0xF4, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x03, 0x65, 0x1E]
 
 # New protocol
 FocusIn = [0x10, 0x02, 0x41, 0x02, 0x04, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x10, 0x03, 0x18, 0x08]
@@ -235,67 +235,68 @@ def parse_status_response(buf: bytes):
 #            0x10, 0x03, 0xAB, 0x80)))
 
 
-class ACT1(IntFlag):
-    NONE = 0
-    USE_CTRL_1 = 1 << 0
-    POLARITY_WH = 1 << 5  # White Hot
-    POLARITY_BH = 0 << 5  # Black Hot
+# class ACT1(IntFlag):
+#     NONE = 0
+#     USE_CTRL_1 = 1 << 0
+#     POLARITY_WH = 1 << 5  # White Hot
+#     POLARITY_BH = 0 << 5  # Black Hot
+#
+#
+# class ACT2(IntFlag):
+#     NONE = 0
+#     USE_FOV = 1 << 5
+#
+#
+# class CTRL1(IntFlag):
+#     """Calibration method"""
+#     NONE = 0
+#     DEFAULT = 0x3 & 0b111
+#
+#
+# class FOV(Enum):
+#     NONE = [0x00, 0x00]
+#     WFOV = [0x00, 0x64]
+#     MFOV = [0x00, 0xC8]
+#     NFOV = [0x01, 0x90]
 
 
-class ACT2(IntFlag):
-    NONE = 0
-    USE_FOV = 1 << 5
-
-
-class CTRL1(IntFlag):
-    """Calibration method"""
-    NONE = 0
-    DEFAULT = 0x3 & 0b111
-
-
-class FOV(Enum):
-    NONE = [0x00, 0x00]
-    WFOV = [0x00, 0x64]
-    MFOV = [0x00, 0xC8]
-    NFOV = [0x01, 0x90]
-
-
-def compile_zoom_command(act1: ACT1 = ACT1.NONE,
-                         act2: ACT2 = ACT2.NONE,
-                         ctrl1: CTRL1 = CTRL1.NONE,
-                         fov: FOV = FOV.WFOV):
-    DLE = 0x10
-    STX = 0x02
-    MID = 0xF4
-    STM = 0x02
-    Rsrv = 0x00
-    CTRL2 = 0x00
-    CTRL3 = 0x80
-    ETX = 0x03
-
-    header = [DLE, STX, MID, STM]
-    footer = [DLE, ETX, Rsrv, Rsrv]
-
-    if act1 & ACT1.USE_CTRL_1:
-        body = [act1, act2, Rsrv, ctrl1, CTRL2, *fov.value, CTRL3, Rsrv, Rsrv]
-    else:
-        body = [act1, act2, Rsrv, *fov.value]
-    cmd = bytearray([*header, *body, *footer])
-    ret = ccitt_message(cmd)
-    print(format_bytes(ret), len(ret))
-    return ret
-
-
-def compile_only_zoom(fov: FOV = FOV.WFOV):
-    return compile_zoom_command(act2=ACT2.USE_FOV, fov=fov)
-
-
-def compile_only_calibration(mode: CTRL1 = CTRL1.DEFAULT):
-    return compile_zoom_command(act1=ACT1.USE_CTRL_1, ctrl1=mode, act2=ACT2.USE_FOV, fov=FOV.NFOV)
-
-
-def compile_only_polarity(polarity: ACT1 = ACT1.POLARITY_WH):
-    return compile_zoom_command(act1=polarity)
+# def compile_zoom_command(act1: ACT1 = ACT1.NONE,
+#                          act2: ACT2 = ACT2.NONE,
+#                          ctrl1: CTRL1 = CTRL1.NONE,
+#                          fov: FOV = FOV.WFOV):
+#     DLE = 0x10
+#     STX = 0x02
+#     MID = 0xF4
+#     STM = 0x02
+#     Rsrv = 0x00
+#     CTRL2 = 0x00
+#     CTRL3 = 0x80
+#     ETX = 0x03
+#
+#     header = [DLE, STX, MID, STM]
+#     footer = [DLE, ETX, Rsrv, Rsrv]
+#
+#     if act1 & ACT1.USE_CTRL_1:
+#         body = [act1, act2, Rsrv, ctrl1, CTRL2, *fov.value, CTRL3, Rsrv, Rsrv]
+#     else:
+#         body = [act1, act2, Rsrv, *fov.value]
+#     cmd = bytearray([*header, *body, *footer])
+#     ret = ccitt_message(cmd)
+#     print(format_bytes(ret), len(ret))
+#     return ret
+#
+#
+# def compile_zoom_inv(fov: FOV = FOV.WFOV, polarity: ACT1 = ACT1.POLARITY_WH):
+#     return compile_zoom_command(act2=ACT2.USE_FOV, fov=fov, act1=polarity)
+#
+#
+# def compile_cal_inv(mode: CTRL1 = CTRL1.DEFAULT, polarity: ACT1 = ACT1.POLARITY_WH):
+#     print(ACT1.USE_CTRL_1 | polarity)
+#     return compile_zoom_command(act1=ACT1.USE_CTRL_1 | polarity, ctrl1=mode, act2=ACT2.USE_FOV, fov=FOV.NFOV)
+#
+#
+# def compile_only_polarity(polarity: ACT1 = ACT1.POLARITY_WH):
+#     return compile_zoom_command(act1=polarity)
 
 
 # compile_zoom_command(act2=ACT2.USE_FOV, fov=FOV.WFOV)
@@ -304,3 +305,33 @@ def compile_only_polarity(polarity: ACT1 = ACT1.POLARITY_WH):
 # compile_only_calibration(mode=CTRL1.DEFAULT)
 # compile_only_polarity(polarity=ACT1.POLARITY_WH)
 # compile_only_polarity(polarity=ACT1.POLARITY_BH)
+
+
+# precompile commands
+# ZoomWH = [compile_zoom_inv(fov=z) for z in tuple(FOV.__members__.values())[1:]]
+# ZoomBH = [compile_zoom_inv(fov=z, polarity=ACT1.POLARITY_BH) for z in tuple(FOV.__members__.values())[1:]]
+# Calibration = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_BH)
+# WhiteHot = compile_only_polarity(polarity=ACT1.POLARITY_WH)
+# BlackHot = compile_only_polarity(polarity=ACT1.POLARITY_BH)
+
+
+CalibrationWH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_WH)
+CalibrationBH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_BH)
+
+print(CalibrationWH)
+print(CalibrationBH)
+# precompiled commands
+
+WhiteHot = b'\x10\x02\xf4\x02 \x00\x00\x00d\x10\x03A\x88'
+BlackHot = b'\x10\x02\xf4\x02\x00\x00\x00\x00d\x10\x03I<'
+
+CalibrationWH = b'\x10\x02\xf4\x02! \x00\x03\x00\x01\x90\x80\x00\x00\x10\x03\xfd\xd4'
+CalibrationBH = b'\x10\x02\xf4\x02\x01 \x00\x03\x00\x01\x90\x80\x00\x00\x10\x03\xc4\xd9'
+
+ZoomWH = [b'\x10\x02\xf4\x02  \x00\x00d\x10\x03v\xc6',
+          b'\x10\x02\xf4\x02  \x00\x00\xc8\x10\x03\x02\xa0',
+          b'\x10\x02\xf4\x02  \x00\x01\x90\x10\x03\xeal']
+
+ZoomBH = [b'\x10\x02\xf4\x02\x00 \x00\x00d\x10\x03~r',
+          b'\x10\x02\xf4\x02\x00 \x00\x00\xc8\x10\x03\n\x14',
+          b'\x10\x02\xf4\x02\x00 \x00\x01\x90\x10\x03\xe2\xd8']

@@ -1,3 +1,4 @@
+
 import time
 
 from machine import UART, Pin
@@ -15,7 +16,7 @@ class Status:
     Brightness = len(api.CONTRAST) - 1
     Contrast = len(api.BRIGHTNESS) - 1
     Mide = len(api.MIDE) - 1
-    Zoom = len(api.Zoom) - 1
+    Zoom = len(api.ZoomWH) - 1
     Inversion = api.WhiteHot
 
 
@@ -94,9 +95,12 @@ def handle_zoomin_btn():
         ButtonState.ZoomIn = 0
     elif ButtonState.ZoomIn != 1:
         ButtonState.ZoomIn = 1
-        if Status.Zoom + 1 < len(api.Zoom):
+        if Status.Zoom + 1 < len(api.ZoomWH):
             Status.Zoom += 1
-            send_command(api.Zoom[Status.Zoom])
+            if Status.Inversion == api.BlackHot:
+                send_command(api.ZoomBH[Status.Zoom])
+            else:
+                send_command(api.ZoomWH[Status.Zoom])
         print(f"{Status.Zoom=}")
 
 
@@ -107,7 +111,10 @@ def handle_zoomout_btn():
         ButtonState.ZoomOut = 1
         if Status.Zoom > 0:
             Status.Zoom -= 1
-            send_command(api.Zoom[Status.Zoom])
+            if Status.Inversion == api.BlackHot:
+                send_command(api.ZoomBH[Status.Zoom])
+            else:
+                send_command(api.ZoomWH[Status.Zoom])
         print(f"{Status.Zoom=}")
 
 
@@ -116,7 +123,10 @@ def handle_calibration_btn():
         ButtonState.Calibration = 0
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
-        send_command(api.Calibration)
+        if Status.Inversion == api.BlackHot:
+            send_command(api.CalibrationBH)
+        else:
+            send_command(api.CalibrationWH)
         print("Calibration")
 
 
@@ -172,12 +182,18 @@ def handle_inversion_btn():
 
 
 
-def init():
+def get_status():
     ...
 
 
 def main():
+    get_status_timer = 5000
     while True:
+        get_status_timer -= 100
+        if get_status_timer <= 0:
+            get_status()
+            get_status_timer = 5000
+
         time.sleep_ms(100)
         LED.value(int(not LED.value()))
 
@@ -198,4 +214,5 @@ def main():
 
 
 main()
+
 
