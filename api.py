@@ -315,11 +315,11 @@ def parse_status_response(buf: bytes):
 # BlackHot = compile_only_polarity(polarity=ACT1.POLARITY_BH)
 
 
-CalibrationWH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_WH)
-CalibrationBH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_BH)
+# CalibrationWH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_WH)
+# CalibrationBH = compile_cal_inv(mode=CTRL1.DEFAULT, polarity=ACT1.POLARITY_BH)
 
-print(CalibrationWH)
-print(CalibrationBH)
+# print(CalibrationWH)
+# print(CalibrationBH)
 # precompiled commands
 
 WhiteHot = b'\x10\x02\xf4\x02 \x00\x00\x00d\x10\x03A\x88'
@@ -335,3 +335,5 @@ ZoomWH = [b'\x10\x02\xf4\x02  \x00\x00d\x10\x03v\xc6',
 ZoomBH = [b'\x10\x02\xf4\x02\x00 \x00\x00d\x10\x03~r',
           b'\x10\x02\xf4\x02\x00 \x00\x00\xc8\x10\x03\n\x14',
           b'\x10\x02\xf4\x02\x00 \x00\x01\x90\x10\x03\xe2\xd8']
+
+# parse_status_response(bytes(status_smple1))

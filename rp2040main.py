@@ -183,7 +183,14 @@ def handle_inversion_btn():
 
 
 def get_status():
-    ...
+    send_command(api.GET_STATUS)
+    try:
+        ret = uart.read(22)
+        api.parse_status_response(bytes(ret))
+        print()
+    except Exception as e:
+        print(f"Failed get status: {e}")
+
 
 
 def main():
