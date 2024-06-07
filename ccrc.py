@@ -108,18 +108,18 @@ def ccitt_message(msg: list[int]):
 
 
 
-if __name__ == "__main__":
-    import api
-    from api import WhiteHot
-    EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
-    CRC = checksum_message(WhiteHot)
-    CCIT = ccitt_message(WhiteHot)
-    ACT = senddex(WhiteHot[2:-4])
-    print("Actual  ", format_bytes(ACT))
-    print("Expected", format_bytes(EXP))
-    print("Checksum", format_bytes(CRC))
-    print("CCIT    ", format_bytes(CCIT))
-    print(EXP == CRC == CCIT)
-
-
-    print(checksum_message(api.Calibration))
+# if __name__ == "__main__":
+#     import api
+#     from api import WhiteHot
+#     EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
+#     CRC = checksum_message(WhiteHot)
+#     CCIT = ccitt_message(WhiteHot)
+#     ACT = senddex(WhiteHot[2:-4])
+#     print("Actual  ", format_bytes(ACT))
+#     print("Expected", format_bytes(EXP))
+#     print("Checksum", format_bytes(CRC))
+#     print("CCIT    ", format_bytes(CCIT))
+#     print(EXP == CRC == CCIT)
+#
+#
+#     print(checksum_message(api.Calibration))

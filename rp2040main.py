@@ -4,6 +4,7 @@ import time
 from machine import UART, Pin
 
 import api
+import zoom
 
 LED = Pin(25, Pin.OUT)
 
@@ -123,10 +124,20 @@ def handle_calibration_btn():
         ButtonState.Calibration = 0
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
-        if Status.Inversion == api.BlackHot:
-            send_command(api.CalibrationBH)
+
+        if Status.Zoom == 0:
+            zoom_ = zoom.FOV.WFOV
+        elif Status.Zoom == 1:
+            zoom_ = zoom.FOV.MFOV
         else:
-            send_command(api.CalibrationWH)
+            zoom_ = zoom.FOV.NFOV
+
+        if Status.Inversion == api.BlackHot:
+            # send_command(api.CalibrationBH)
+            polarity_ = zoom.ACT1.POLARITY_BH
+        else:
+            polarity_ = zoom.ACT1.POLARITY_WH
+        send_command(zoom.compile_calibration(polarity_, zoom_))
         print("Calibration")
 
 
