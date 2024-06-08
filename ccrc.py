@@ -103,8 +103,18 @@ def checksum_message(msg: list[int]):
     return bytes(msg[0:-2]) + crc16_ccitt_fast(msg[2:-4]).to_bytes(2, byteorder='big')
 
 
+def int16_to_bytes(value):
+    if not (0 <= value <= 0xFFFF):
+        raise ValueError("Value must be a 2-byte integer (0 <= value <= 65535)")
+    byte1 = (value >> 8) & 0xFF  # Extract the higher byte
+    byte2 = value & 0xFF  # Extract the lower byte
+
+    return bytearray([byte1, byte2])
+
+
 def ccitt_message(msg: list[int]):
-    return bytes(msg[0:-2]) + crc16_ccitt(msg[2:-4]).to_bytes(2, byteorder='big')
+    # return bytes(msg[0:-2]) + crc16_ccitt(msg[2:-4]).to_bytes(2, byteorder='big')
+    return bytes(msg[0:-2]) + int16_to_bytes(crc16_ccitt(msg[2:-4]))
 
 
 
