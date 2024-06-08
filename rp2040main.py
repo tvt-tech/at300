@@ -27,8 +27,11 @@ class Button:
     Mide = Pin(8, Pin.IN, Pin.PULL_UP)
     Inversion = Pin(9, Pin.IN, Pin.PULL_UP)
 
-    ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)
-    ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)
+    # ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)
+    # ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)
+    ZoomIn = Pin(11, Pin.IN, Pin.PULL_UP)
+    ZoomOut = Pin(10, Pin.IN, Pin.PULL_UP)
+
     Calibration = Pin(12, Pin.IN, Pin.PULL_UP)
     AutoFocus = Pin(13, Pin.IN, Pin.PULL_UP)
 
