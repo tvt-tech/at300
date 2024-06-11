@@ -20,16 +20,16 @@ class CTRL1:
 
 
 class FOV:
-    NONE = (0x00, 0x00)
-    WFOV = (0x00, 0x64)
-    MFOV = (0x00, 0xC8)
-    NFOV = (0x01, 0x90)
+    NONE = [0x00, 0x00]
+    WFOV = [0x00, 0x64]
+    MFOV = [0x00, 0xC8]
+    NFOV = [0x01, 0x90]
 
 
 def compile_zoom_command(act1: int = ACT1.NONE,
                          act2: int = ACT2.NONE,
                          ctrl1: int = CTRL1.NONE,
-                         fov: tuple[int, int] = FOV.WFOV):
+                         fov: list[int, int] = FOV.WFOV):
     DLE = 0x10
     STX = 0x02
     MID = 0xF4
@@ -43,16 +43,17 @@ def compile_zoom_command(act1: int = ACT1.NONE,
     footer = [DLE, ETX, Rsrv, Rsrv]
 
     if act1 & ACT1.USE_CTRL_1:
-        body = [act1, act2, Rsrv, ctrl1, CTRL2, *fov, CTRL3, Rsrv, Rsrv]
+        body = [act1, act2, Rsrv, ctrl1, CTRL2] + fov + [CTRL3, Rsrv, Rsrv]
     else:
-        body = [act1, act2, Rsrv, *fov]
-    cmd = bytearray([*header, *body, *footer])
+        body = [act1, act2, Rsrv] + fov
+    cmd = bytearray(header + body + footer)
     ret = ccitt_message(list(cmd))
     print(format_bytes(ret), len(ret))
     return ret
 
 
-def compile_calibration(polarity: int, fov: tuple[int, int]):
+def compile_calibration(polarity: int, fov: list[int, int]):
+    print(polarity, fov)
     return compile_zoom_command(act1=ACT1.USE_CTRL_1 | polarity,
                                 act2=ACT2.USE_FOV,
                                 ctrl1=CTRL1.DEFAULT,

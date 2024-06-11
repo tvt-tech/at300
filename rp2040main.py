@@ -27,10 +27,10 @@ class Button:
     Mide = Pin(8, Pin.IN, Pin.PULL_UP)
     Inversion = Pin(9, Pin.IN, Pin.PULL_UP)
 
-    # ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)
-    # ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)
-    ZoomIn = Pin(11, Pin.IN, Pin.PULL_UP)
-    ZoomOut = Pin(10, Pin.IN, Pin.PULL_UP)
+    ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)
+    ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)
+    #ZoomIn = Pin(11, Pin.IN, Pin.PULL_UP)
+    #ZoomOut = Pin(10, Pin.IN, Pin.PULL_UP)
 
     Calibration = Pin(12, Pin.IN, Pin.PULL_UP)
     AutoFocus = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -129,11 +129,11 @@ def handle_calibration_btn():
         ButtonState.Calibration = 1
 
         if Status.Zoom == 0:
-            zoom_ = zoom.FOV.WFOV
+            zoom_ = zoom.FOV.NFOV
         elif Status.Zoom == 1:
             zoom_ = zoom.FOV.MFOV
         else:
-            zoom_ = zoom.FOV.NFOV
+            zoom_ = zoom.FOV.WFOV
 
         if Status.Inversion == api.BlackHot:
             # send_command(api.CalibrationBH)
@@ -247,4 +247,5 @@ def main():
 
 
 main()
+
 
