@@ -204,7 +204,7 @@ def parse_status_response(buf: bytes):
         retval['Contrast'] = int.from_bytes(bytes((OL, OH)), 'little')
         retval['Brightness'] = int.from_bytes(bytes((BL, BH)), 'little')
 
-        print("\nGOT STATUS:")
+        print("\nSTATUS:")
         for k, v in retval.items():
             print(f"\t{k}:\t\t{v}")
 

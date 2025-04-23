@@ -1,13 +1,13 @@
 import time
 
-from machine import UART, Pin
+from machine import UART, Pin, Timer
 
 import api
 import zoom
 
 LED = Pin(22, Pin.OUT)
 
-uart = UART(1, baudrate=115200, stop=2, tx=Pin(4), rx=Pin(5))
+uart = UART(1, baudrate=115200, stop=2, tx=Pin(4), rx=Pin(5), timeout=50)
 RS422Pin = Pin(2, Pin.OUT)
 RS422Pin.on()
 
@@ -183,55 +183,87 @@ def handle_inversion_btn():
         print(f"{Status.Polarity=}")
 
 
-def get_status():
-    send_command(api.GET_STATUS)
-    retry = 10
-    h = uart.read(2)
-    while h != b'\x10\x02':
-        print(f"Retry: {h}")
-        retry -= 1
-        if retry <= 0:
-            break
+def get_status_callback(timer):
     try:
-        if h == b'\x10\x02':
-            ret = h + uart.read(20)
-            print(ret)
-            api.parse_status_response(bytes(ret))
-            print()
-        else:
-            print(h)
-            raise ValueError("Wrong header")
+        get_status()
     except Exception as e:
-        print(f"Failed get status: {e}")
+        print(f"Error in status timer: {e}")
+
+
+# def get_status():
+#     print("Ping...")
+#     send_command(api.GET_STATUS)
+#
+#     # Attempt to read the correct 2-byte header
+#     for retry in range(10):
+#         h = uart.read(2)
+#         if h == b'\x10\x02':
+#             break
+#         print(f"Retry {retry + 1}: {h}")
+#     else:
+#         print("Header not found after retries")
+#         return
+#
+#     try:
+#         data = uart.read(20)
+#         if not data or len(data) < 20:
+#             raise ValueError(f"Incomplete data: {data}")
+#         ret = h + data
+#         print(f"Received: {ret}")
+#         api.parse_status_response(ret)
+#     except Exception as e:
+#         print(f"Failed to get status: {e}")
+
+
+def get_status():
+    print("Ping...")
+    send_command(api.GET_STATUS)
+
+    # Expecting 2-byte header + 20-byte body
+    expected_len = 22
+    data = uart.read(expected_len)
+
+    if not data or len(data) < expected_len:
+        print(f"Timeout or incomplete data: {data}")
+        return
+
+    if data[:2] != b'\x10\x02':
+        print(f"Invalid header: {data[:2]}")
+        return
+
+    try:
+        print(f"Received: {data}")
+        api.parse_status_response(data)
+    except Exception as e:
+        print(f"Failed to parse status: {e}")
 
 
 def main():
-    # get_status_timer = 5000
-    while True:
-        # get_status_timer -= 100
-        # if get_status_timer <= 0:
-        #    get_status()
-        #    get_status_timer = 5000
+    status_timer = Timer(-1)
+    status_timer.init(period=200, mode=Timer.PERIODIC, callback=get_status_callback)
+    try:
+        while True:
+            time.sleep_ms(100)
+            LED.value(int(not LED.value()))
 
-        time.sleep_ms(100)
-        LED.value(int(not LED.value()))
+            handle_brightness_btn()
+            handle_contrast_btn()
+            handle_mide_btn()
 
-        handle_brightness_btn()
-        handle_contrast_btn()
-        handle_mide_btn()
+            handle_zoomin_btn()
+            handle_zoomout_btn()
 
-        handle_zoomin_btn()
-        handle_zoomout_btn()
+            handle_autofocus_btn()
+            handle_focusin_btn()
+            handle_focusout_btn()
+            handle_foucusstop()
 
-        handle_autofocus_btn()
-        handle_focusin_btn()
-        handle_focusout_btn()
-        handle_foucusstop()
-
-        handle_calibration_btn()
-        handle_inversion_btn()
-
+            handle_calibration_btn()
+            handle_inversion_btn()
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
+    finally:
+        status_timer.deinit()
+        print("Timer stopped.")
 
 main()
-
-
