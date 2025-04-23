@@ -103,23 +103,33 @@ def checksum_message(msg: list[int]):
     return bytes(msg[0:-2]) + crc16_ccitt_fast(msg[2:-4]).to_bytes(2, byteorder='big')
 
 
+def int16_to_bytes(value):
+    if not (0 <= value <= 0xFFFF):
+        raise ValueError("Value must be a 2-byte integer (0 <= value <= 65535)")
+    byte1 = (value >> 8) & 0xFF  # Extract the higher byte
+    byte2 = value & 0xFF  # Extract the lower byte
+
+    return bytearray([byte1, byte2])
+
+
 def ccitt_message(msg: list[int]):
-    return bytes(msg[0:-2]) + crc16_ccitt(msg[2:-4]).to_bytes(2, byteorder='big')
+    # return bytes(msg[0:-2]) + crc16_ccitt(msg[2:-4]).to_bytes(2, byteorder='big')
+    return bytes(msg[0:-2]) + int16_to_bytes(crc16_ccitt(msg[2:-4]))
 
 
 
-if __name__ == "__main__":
-    import api
-    from api import WhiteHot
-    EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
-    CRC = checksum_message(WhiteHot)
-    CCIT = ccitt_message(WhiteHot)
-    ACT = senddex(WhiteHot[2:-4])
-    print("Actual  ", format_bytes(ACT))
-    print("Expected", format_bytes(EXP))
-    print("Checksum", format_bytes(CRC))
-    print("CCIT    ", format_bytes(CCIT))
-    print(EXP == CRC == CCIT)
-
-
-    print(checksum_message(api.Calibration))
+# if __name__ == "__main__":
+#     import api
+#     from api import WhiteHot
+#     EXP = bytes(WhiteHot[:2]) + bytes(WhiteHot[2:-2]) + bytes(WhiteHot[-2:])
+#     CRC = checksum_message(WhiteHot)
+#     CCIT = ccitt_message(WhiteHot)
+#     ACT = senddex(WhiteHot[2:-4])
+#     print("Actual  ", format_bytes(ACT))
+#     print("Expected", format_bytes(EXP))
+#     print("Checksum", format_bytes(CRC))
+#     print("CCIT    ", format_bytes(CCIT))
+#     print(EXP == CRC == CCIT)
+#
+#
+#     print(checksum_message(api.Calibration))

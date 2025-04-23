@@ -1,11 +1,11 @@
-
 import time
 
 from machine import UART, Pin
 
 import api
+import zoom
 
-LED = Pin(25, Pin.OUT)
+LED = Pin(22, Pin.OUT)
 
 uart = UART(1, baudrate=115200, stop=2, tx=Pin(4), rx=Pin(5))
 RS422Pin = Pin(2, Pin.OUT)
@@ -16,8 +16,8 @@ class Status:
     Brightness = len(api.CONTRAST) - 1
     Contrast = len(api.BRIGHTNESS) - 1
     Mide = len(api.MIDE) - 1
-    Zoom = len(api.ZoomWH) - 1
-    Inversion = api.WhiteHot
+    Zoom = zoom.FOV.WFOV
+    Polarity = zoom.ACT1.POLARITY_WH
 
 
 class Button:
@@ -26,8 +26,11 @@ class Button:
     Mide = Pin(8, Pin.IN, Pin.PULL_UP)
     Inversion = Pin(9, Pin.IN, Pin.PULL_UP)
 
-    ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)
-    ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)
+    ZoomIn = Pin(10, Pin.IN, Pin.PULL_UP)  # plus
+    ZoomOut = Pin(11, Pin.IN, Pin.PULL_UP)  # minus
+    # ZoomIn = Pin(11, Pin.IN, Pin.PULL_UP)
+    # ZoomOut = Pin(10, Pin.IN, Pin.PULL_UP)
+
     Calibration = Pin(12, Pin.IN, Pin.PULL_UP)
     AutoFocus = Pin(13, Pin.IN, Pin.PULL_UP)
 
@@ -39,7 +42,7 @@ class ButtonState:
     Brightness = 0
     Contrast = 0
     Mide = 0
-    Inversion = 0
+    Polarity = 0
     AutoFocus = 0
     ZoomIn = 0
     ZoomOut = 0
@@ -90,18 +93,22 @@ def handle_mide_btn():
         print(f"{Status.Mide=}")
 
 
+def send_zoom():
+    send_command(zoom.compile_zoom_only(Status.Polarity, Status.Zoom))
+    print(f"{Status.Zoom=}")
+
+
 def handle_zoomin_btn():
     if Button.ZoomIn.value():
         ButtonState.ZoomIn = 0
     elif ButtonState.ZoomIn != 1:
         ButtonState.ZoomIn = 1
-        if Status.Zoom + 1 < len(api.ZoomWH):
-            Status.Zoom += 1
-            if Status.Inversion == api.BlackHot:
-                send_command(api.ZoomBH[Status.Zoom])
-            else:
-                send_command(api.ZoomWH[Status.Zoom])
-        print(f"{Status.Zoom=}")
+        if Status.Zoom != zoom.FOV.NFOV:
+            if Status.Zoom == zoom.FOV.WFOV:
+                Status.Zoom = zoom.FOV.MFOV
+            elif Status.Zoom == zoom.FOV.MFOV:
+                Status.Zoom = zoom.FOV.NFOV
+            send_zoom()
 
 
 def handle_zoomout_btn():
@@ -109,13 +116,12 @@ def handle_zoomout_btn():
         ButtonState.ZoomOut = 0
     elif ButtonState.ZoomOut != 1:
         ButtonState.ZoomOut = 1
-        if Status.Zoom > 0:
-            Status.Zoom -= 1
-            if Status.Inversion == api.BlackHot:
-                send_command(api.ZoomBH[Status.Zoom])
-            else:
-                send_command(api.ZoomWH[Status.Zoom])
-        print(f"{Status.Zoom=}")
+        if Status.Zoom != zoom.FOV.WFOV:
+            if Status.Zoom == zoom.FOV.NFOV:
+                Status.Zoom = zoom.FOV.MFOV
+            elif Status.Zoom == zoom.FOV.MFOV:
+                Status.Zoom = zoom.FOV.WFOV
+            send_zoom()
 
 
 def handle_calibration_btn():
@@ -123,10 +129,7 @@ def handle_calibration_btn():
         ButtonState.Calibration = 0
     elif ButtonState.Calibration != 1:
         ButtonState.Calibration = 1
-        if Status.Inversion == api.BlackHot:
-            send_command(api.CalibrationBH)
-        else:
-            send_command(api.CalibrationWH)
+        send_command(zoom.compile_calibration(Status.Polarity, Status.Zoom))
         print("Calibration")
 
 
@@ -169,17 +172,15 @@ def handle_foucusstop():
 
 def handle_inversion_btn():
     if Button.Inversion.value():
-        ButtonState.Inversion = 0
-    elif ButtonState.Inversion != 1:
-        ButtonState.Inversion = 1
-        if Status.Inversion == api.WhiteHot:
-            send_command(api.BlackHot)
-            Status.Inversion = api.BlackHot
+        ButtonState.Polarity = 0
+    elif ButtonState.Polarity != 1:
+        ButtonState.Polarity = 1
+        if Status.Polarity == zoom.ACT1.POLARITY_WH:
+            Status.Polarity = zoom.ACT1.POLARITY_BH
         else:
-            send_command(api.WhiteHot)
-            Status.Inversion = api.WhiteHot
-        print(f"{Status.Inversion=}")
-
+            Status.Polarity = zoom.ACT1.POLARITY_WH
+        send_command(zoom.compile_polarity_only(Status.Polarity))
+        print(f"{Status.Polarity=}")
 
 
 def get_status():
@@ -204,12 +205,11 @@ def get_status():
         print(f"Failed get status: {e}")
 
 
-
 def main():
-    #get_status_timer = 5000
+    # get_status_timer = 5000
     while True:
-        #get_status_timer -= 100
-        #if get_status_timer <= 0:
+        # get_status_timer -= 100
+        # if get_status_timer <= 0:
         #    get_status()
         #    get_status_timer = 5000
 
@@ -233,4 +233,5 @@ def main():
 
 
 main()
+
 
