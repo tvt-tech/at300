@@ -1,0 +1,12 @@
+[project]
+name = "at300"
+version = "0.1.0"
+description = "at300 serial control"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "adafruit-ampy>=1.1.0",
+    "mpy-cross>=1.25.0.post2",
+]
